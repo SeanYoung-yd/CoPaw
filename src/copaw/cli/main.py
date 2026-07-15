@@ -72,6 +72,11 @@ from .env_cmd import env_group  # noqa: E402
 _record(".env_cmd", time.perf_counter() - _t)
 
 _t = time.perf_counter()
+from .eval_cmd import eval_group  # noqa: E402
+
+_record(".eval_cmd", time.perf_counter() - _t)
+
+_t = time.perf_counter()
 from .init_cmd import init_cmd  # noqa: E402
 
 _record(".init_cmd", time.perf_counter() - _t)
@@ -141,6 +146,7 @@ cli.add_command(chats_group)
 cli.add_command(clean_cmd)
 cli.add_command(cron_group)
 cli.add_command(env_group)
+cli.add_command(eval_group)
 cli.add_command(init_cmd)
 cli.add_command(models_group)
 cli.add_command(skills_group)

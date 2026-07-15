@@ -20,6 +20,7 @@ from copaw.agents.model_factory import create_model_and_formatter
 from copaw.agents.tools import read_file, write_file, edit_file
 from copaw.agents.utils import _get_token_counter
 from copaw.config import load_config
+from .privacy import sanitize_memory_text
 
 logger = logging.getLogger(__name__)
 
@@ -238,7 +239,7 @@ class MemoryManager(ReMeLight):
         memory_compact_ratio = config.agents.running.memory_compact_ratio
         language = config.agents.language
 
-        return await super().compact_memory(
+        summary = await super().compact_memory(
             messages=messages,
             as_llm=self.chat_model,
             as_llm_formatter=self.formatter,
@@ -248,6 +249,7 @@ class MemoryManager(ReMeLight):
             compact_ratio=memory_compact_ratio,
             previous_summary=previous_summary,
         )
+        return sanitize_memory_text(summary)
 
     async def summary_memory(self, messages: list[Msg], **_kwargs) -> str:
         """Generate a comprehensive summary of the given messages.
@@ -267,7 +269,7 @@ class MemoryManager(ReMeLight):
         memory_compact_ratio = config.agents.running.memory_compact_ratio
         language = config.agents.language
 
-        return await super().summary_memory(
+        summary = await super().summary_memory(
             messages=messages,
             as_llm=self.chat_model,
             as_llm_formatter=self.formatter,
@@ -277,6 +279,7 @@ class MemoryManager(ReMeLight):
             max_input_length=max_input_length,
             compact_ratio=memory_compact_ratio,
         )
+        return sanitize_memory_text(summary)
 
     def get_in_memory_memory(self, **_kwargs):
         """Retrieve in-memory memory content.

@@ -33,6 +33,7 @@
     "skills": "Навыки",
     "mcp": "MCP",
     "agentConfig": "Конфигурация",
+    "memoryEval": "Оценка памяти",
     "settings": "Настройки",
     "models": "Модели",
     "environments": "Окружения"

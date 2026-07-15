@@ -27,6 +27,7 @@ class PromptConfig:
         ("AGENTS.md", True),
         ("SOUL.md", True),
         ("PROFILE.md", False),
+        ("MEMORY.md", False),
     ]
 
 
@@ -146,14 +147,15 @@ def build_system_prompt_from_working_dir() -> str:
     1. AGENTS.md (required) - Detailed workflows, rules, and guidelines
     2. SOUL.md (required) - Core identity and behavioral principles
     3. PROFILE.md (optional) - Agent identity and user profile
+    4. MEMORY.md (optional) - Pointer-only memory index
 
     Returns:
         str: Constructed system prompt from markdown files.
              If required files don't exist, returns the default prompt.
 
     Example:
-        If working_dir contains AGENTS.md, SOUL.md and PROFILE.md, they will be combined:
-        "# AGENTS.md\\n\\n...\\n\\n# SOUL.md\\n\\n...\\n\\n# PROFILE.md\\n\\n..."
+        If working_dir contains AGENTS.md, SOUL.md, PROFILE.md, and MEMORY.md,
+        they will be combined in that order.
     """
     from ..constant import WORKING_DIR
 

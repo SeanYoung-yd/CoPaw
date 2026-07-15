@@ -4,6 +4,7 @@ export * from "./heartbeat";
 export * from "./chat";
 export * from "./cronjob";
 export * from "./env";
+export * from "./eval";
 export * from "./mcp";
 export * from "./provider";
 export * from "./skill";

@@ -1,0 +1,116 @@
+{
+  "name": "memory-regression-suite",
+  "documents": [
+    {
+      "id": "memory-index",
+      "path": "MEMORY.md",
+      "content": "# MEMORY\n\n## User\n- [User Profile](memory/user/profile.md) - User prefers pytest for Python projects.\n\n## Project\n- [Deployment](memory/project/deployment.md) - Docker Compose deployment and health check.\n- [Ollama Incident](memory/project/ollama-connection.md) - ECONNREFUSED Ollama connection fix."
+    },
+    {
+      "id": "profile",
+      "path": "memory/user/profile.md",
+      "content": "---\nname: User Profile\ndescription: User prefers pytest for Python projects.\ntype: user\n---\n\nUser prefers pytest for Python projects. Persistent decisions should be written to topic files with concise hooks in MEMORY.md."
+    },
+    {
+      "id": "deployment",
+      "path": "memory/project/deployment.md",
+      "content": "---\nname: Deployment\ndescription: Docker Compose deployment and health check.\ntype: project\n---\n\nDeployment uses Docker Compose. The api service listens on port 8088 and health checks call /health."
+    },
+    {
+      "id": "incident",
+      "path": "memory/project/ollama-connection.md",
+      "content": "---\nname: Ollama Incident\ndescription: ECONNREFUSED Ollama connection fix.\ntype: project\n---\n\nFixed ECONNREFUSED by changing the Ollama base URL to http://127.0.0.1:11434."
+    }
+  ],
+  "search_cases": [
+    {
+      "id": "TC-S01",
+      "query": "ECONNREFUSED Ollama",
+      "relevant_ids": ["incident"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S02",
+      "query": "preferred Python test framework",
+      "relevant_ids": ["profile"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S03",
+      "query": "Docker API health check port",
+      "relevant_ids": ["deployment"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S04",
+      "query": "Docker deployment",
+      "relevant_ids": ["deployment", "incident"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S05",
+      "query": "quantum computing algorithm",
+      "relevant_ids": [],
+      "max_results": 3
+    }
+  ],
+  "compaction_cases": [
+    {
+      "id": "TC-C01",
+      "messages": [
+        {"role": "user", "content": "Remember that the benchmark should report recall@k, MRR, and latency."},
+        {"role": "assistant", "content": "I will keep recall@k, MRR, latency, compression ratio, and retention in the report."}
+      ],
+      "expected_terms": ["recall@k", "MRR", "latency"],
+      "previous_summary": "",
+      "max_summary_tokens": 80
+    },
+    {
+      "id": "TC-C02",
+      "messages": [
+        {"role": "user", "content": "My name is Zhang San and I am a backend engineer."},
+        {"role": "assistant", "content": "Nice to meet you Zhang San. I will remember you are a backend engineer."},
+        {"role": "user", "content": "My project uses Go and PostgreSQL, deployed with Docker Compose on Kubernetes."},
+        {"role": "assistant", "content": "Got it. Go, PostgreSQL, Docker Compose, Kubernetes. I will note these down."},
+        {"role": "user", "content": "The API runs on port 8088 with health check at /health endpoint."},
+        {"role": "assistant", "content": "Recorded: port 8088, health check at /health."}
+      ],
+      "expected_terms": ["Zhang San", "Go", "PostgreSQL", "Docker", "8088"],
+      "previous_summary": "",
+      "max_summary_tokens": 100
+    },
+    {
+      "id": "TC-C03",
+      "messages": [
+        {"role": "user", "content": "Update: the database has been migrated from MySQL to PostgreSQL."},
+        {"role": "assistant", "content": "Noted. Database changed from MySQL to PostgreSQL."}
+      ],
+      "expected_terms": ["MySQL", "PostgreSQL", "memory"],
+      "previous_summary": "Project uses CoPaw memory files.",
+      "max_summary_tokens": 60
+    },
+    {
+      "id": "TC-C04",
+      "messages": [
+        {"role": "user", "content": "The server infrastructure includes three regions: Beijing for primary, Shanghai for secondary, and Guangzhou for disaster recovery. Each region runs multiple Docker containers behind Nginx load balancer."},
+        {"role": "assistant", "content": "Three regions: Beijing primary, Shanghai secondary, Guangzhou DR. All behind Nginx with Docker containers."},
+        {"role": "user", "content": "Monitoring uses Prometheus and Grafana. Alerts go to DingTalk and email."},
+        {"role": "assistant", "content": "Prometheus plus Grafana for monitoring. Alerts via DingTalk and email."}
+      ],
+      "expected_terms": ["Beijing", "Shanghai", "Prometheus"],
+      "previous_summary": "",
+      "max_summary_tokens": 40
+    },
+    {
+      "id": "TC-C05",
+      "messages": [
+        {"role": "user", "content": "My API key is sk-test-12345 and the endpoint is https://api.example.com/v2."},
+        {"role": "assistant", "content": "Saved: API key sk-test-12345, endpoint https://api.example.com/v2."}
+      ],
+      "expected_terms": ["api.example.com"],
+      "forbidden_terms": ["sk-test-12345"],
+      "previous_summary": "",
+      "max_summary_tokens": 50
+    }
+  ]
+}

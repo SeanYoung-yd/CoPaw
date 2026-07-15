@@ -1,0 +1,251 @@
+{
+  "name": "memory-strategy-discrimination-suite",
+  "notes": [
+    "This suite is designed to separate summary-only memory from folded/topic memory and reflection-based memory.",
+    "The current benchmark schema measures retrieval hits and summary term retention. Use docs/memory_strategy_eval_guide.md for manual and extended scoring."
+  ],
+  "documents": [
+    {
+      "id": "memory-index",
+      "path": "MEMORY.md",
+      "content": "# MEMORY\n\n## User\n- [Current User Profile](memory/user/profile-current.md) - Current user profile and preferred Python test framework.\n\n## Project\n- [Project Alpha](memory/project/alpha.md) - Backend API stack and health check.\n- [Project Beta](memory/project/beta.md) - Frontend console stack and memory evaluation route.\n- [Memory Architecture Decision](memory/project/memory-architecture.md) - Pointer index, topic files, session-dream, and folded memory decision.\n- [API Port Incident](memory/project/port-change.md) - API port changed from 8088 to 8090 on 2026-07-14.\n\n## Feedback\n- [Style Preference](memory/feedback/style.md) - User wants concise Chinese explanations with exact commands and paths.\n\n## Reference\n- [Privacy Policy](memory/reference/privacy.md) - Memory must not persist API keys, passwords, private tokens, one-time codes, or personal identity numbers."
+    },
+    {
+      "id": "profile-current",
+      "path": "memory/user/profile-current.md",
+      "content": "---\nname: Current User Profile\ndescription: Current user profile and preferred Python test framework.\ntype: user\n---\n\nCurrent user profile: name is Lin Chen. Preferred language is Chinese. Preferred Python test framework is pytest. Do not use unittest unless explicitly requested."
+    },
+    {
+      "id": "project-alpha",
+      "path": "memory/project/alpha.md",
+      "content": "---\nname: Project Alpha\ndescription: Backend API stack and health check.\ntype: project\n---\n\nProject Alpha is a backend API. Stack: FastAPI, PostgreSQL, Redis. Deployment uses Docker Compose. Health check path is /healthz."
+    },
+    {
+      "id": "project-beta",
+      "path": "memory/project/beta.md",
+      "content": "---\nname: Project Beta\ndescription: Frontend console stack and memory evaluation route.\ntype: project\n---\n\nProject Beta is a frontend console. Stack: React, Vite, Ant Design. The memory evaluation page uploads JSON suites and posts to /evals/memory."
+    },
+    {
+      "id": "decision-memory-architecture",
+      "path": "memory/project/memory-architecture.md",
+      "content": "---\nname: Memory Architecture Decision\ndescription: Pointer index, topic files, session-dream, and folded memory decision.\ntype: project\n---\n\nMemory architecture decision: keep MEMORY.md as a lightweight pointer index, move detailed facts into topic files, run session-dream after long work, and use folded memory for old episodes."
+    },
+    {
+      "id": "incident-port",
+      "path": "memory/project/port-change.md",
+      "content": "---\nname: API Port Incident\ndescription: API port changed from 8088 to 8090 on 2026-07-14.\ntype: project\n---\n\nIncident update: the API port changed from 8088 to 8090 on 2026-07-14. Current health check is http://127.0.0.1:8090/healthz."
+    },
+    {
+      "id": "preference-style",
+      "path": "memory/feedback/style.md",
+      "content": "---\nname: Style Preference\ndescription: User wants concise Chinese explanations with exact commands and paths.\ntype: feedback\n---\n\nUser prefers concise Chinese explanations with concrete file paths, exact commands, and a short explanation of why the command is needed."
+    },
+    {
+      "id": "privacy-policy",
+      "path": "memory/reference/privacy.md",
+      "content": "---\nname: Privacy Policy\ndescription: Memory must not persist API keys, passwords, private tokens, one-time codes, or personal identity numbers.\ntype: reference\n---\n\nMemory policy: do not persist API keys, passwords, private tokens, one-time codes, or personal identity numbers. Store only non-sensitive operational preferences."
+    },
+    {
+      "id": "session-restore",
+      "path": "memory/sessions/strategy-folded.json",
+      "content": "{\"memory\":{\"semantic\":{\"facts\":[\"MEMORY.md is pointer-only.\"],\"decisions\":[{\"decision\":\"Use topic files\",\"reason\":\"They are reviewable.\"}],\"eliminated_approaches\":[],\"patterns\":[]},\"episodes\":[],\"current_episode_id\":0,\"total_turns_seen\":0},\"l1_turns\":[]}"
+    }
+  ],
+  "inactive_documents": [
+    {
+      "id": "profile-obsolete",
+      "path": "memory/user/profile-obsolete.md",
+      "content": "---\nname: Obsolete User Profile\ndescription: Obsolete unittest context used only to test stale-fact contamination.\ntype: user\n---\n\nObsolete profile note: user once tried unittest for Python tests, but later replaced it with pytest as the default."
+    }
+  ],
+  "search_cases": [
+    {
+      "id": "TC-R01-current-profile-wins",
+      "query": "preferred Python test framework current",
+      "relevant_ids": ["profile-current"],
+      "must_not_return_ids": ["profile-obsolete"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-R02-topic-routing-alpha",
+      "query": "Project Alpha backend PostgreSQL Docker healthz",
+      "relevant_ids": ["project-alpha"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-R03-topic-routing-beta",
+      "query": "frontend console memory evaluation JSON upload /evals/memory",
+      "relevant_ids": ["project-beta"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-R04-architecture-decision",
+      "query": "MEMORY.md pointer index topic files session-dream folded memory",
+      "relevant_ids": ["decision-memory-architecture"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-R05-latest-port",
+      "query": "current API port health check 8090",
+      "relevant_ids": ["incident-port"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-R06-style-preference",
+      "query": "Chinese explanation exact commands file paths",
+      "relevant_ids": ["preference-style"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-R07-privacy-policy",
+      "query": "should memory persist API keys passwords tokens",
+      "relevant_ids": ["privacy-policy"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-R08-cross-topic-synthesis",
+      "query": "memory evaluation frontend route and memory architecture decision",
+      "relevant_ids": ["project-beta", "decision-memory-architecture"],
+      "max_results": 4
+    }
+  ],
+  "compaction_cases": [
+    {
+      "id": "TC-C01-conflict-update",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Earlier I used unittest for Python tests."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted that unittest was used earlier."
+        },
+        {
+          "role": "user",
+          "content": "Update: pytest is now my default Python test framework. Treat unittest as old context, not the current preference."
+        },
+        {
+          "role": "assistant",
+          "content": "Current preference is pytest. unittest is obsolete context."
+        }
+      ],
+      "expected_terms": ["pytest", "current", "unittest", "obsolete"],
+      "previous_summary": "",
+      "max_summary_tokens": 45
+    },
+    {
+      "id": "TC-C02-topic-folding",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Project Alpha uses FastAPI, PostgreSQL, Redis, and Docker Compose."
+        },
+        {
+          "role": "assistant",
+          "content": "Alpha stack recorded."
+        },
+        {
+          "role": "user",
+          "content": "Project Beta uses React, Vite, Ant Design, and posts memory eval requests to /evals/memory."
+        },
+        {
+          "role": "assistant",
+          "content": "Beta frontend stack recorded separately from Alpha."
+        }
+      ],
+      "expected_terms": ["Alpha", "FastAPI", "PostgreSQL", "Beta", "React", "/evals/memory"],
+      "previous_summary": "",
+      "max_summary_tokens": 65
+    },
+    {
+      "id": "TC-C03-session-dream-extract-decision",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We tried one giant MEMORY.md, but it became hard to scan."
+        },
+        {
+          "role": "assistant",
+          "content": "A single giant MEMORY.md has poor scanability."
+        },
+        {
+          "role": "user",
+          "content": "Final decision: MEMORY.md should become a lightweight pointer index, while detailed facts live in topic files."
+        },
+        {
+          "role": "assistant",
+          "content": "Decision recorded: lightweight pointer index plus topic files."
+        }
+      ],
+      "expected_terms": ["decision", "MEMORY.md", "pointer index", "topic files"],
+      "previous_summary": "",
+      "max_summary_tokens": 45
+    },
+    {
+      "id": "TC-C04-fold-old-episodes",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Episode 1: debugged the console upload button and rebuilt console/dist."
+        },
+        {
+          "role": "assistant",
+          "content": "Episode 1 involved console upload and dist rebuild."
+        },
+        {
+          "role": "user",
+          "content": "Episode 2: added memory benchmark JSON suites and docs for frontend usage."
+        },
+        {
+          "role": "assistant",
+          "content": "Episode 2 involved benchmark suites and documentation."
+        },
+        {
+          "role": "user",
+          "content": "Episode 3: next step is comparing compact summary, session dream, and folded memory."
+        },
+        {
+          "role": "assistant",
+          "content": "Episode 3 is the strategy comparison."
+        }
+      ],
+      "expected_terms": ["console", "benchmark", "docs", "compact summary", "session dream", "folded memory"],
+      "previous_summary": "",
+      "max_summary_tokens": 70
+    },
+    {
+      "id": "TC-C05-privacy-boundary",
+      "messages": [
+        {
+          "role": "user",
+          "content": "My temporary API key is sk-test-should-not-be-stored. Remember only that private tokens must not be persisted."
+        },
+        {
+          "role": "assistant",
+          "content": "I should not store the API key. I can remember the policy that private tokens must not be persisted."
+        }
+      ],
+      "expected_terms": ["private tokens", "not be persisted"],
+      "forbidden_terms": ["sk-test-should-not-be-stored"],
+      "previous_summary": "",
+      "max_summary_tokens": 35
+    },
+    {
+      "id": "TC-C06-incremental-summary-merge",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Update: the API port changed from 8088 to 8090."
+        },
+        {
+          "role": "assistant",
+          "content": "Current API port is 8090; 8088 is old."
+        }
+      ],
+      "expected_terms": ["8090", "current", "8088", "old"],
+      "previous_summary": "Project Alpha API used port 8088 and health check /health.",
+      "max_summary_tokens": 35
+    }
+  ]
+}

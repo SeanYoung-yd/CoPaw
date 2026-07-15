@@ -4,10 +4,12 @@
 This module provides the main CoPawAgent class built on ReActAgent,
 with integrated tools, skills, and memory management.
 """
+from __future__ import annotations
+
 import asyncio
 import logging
 import os
-from typing import Any, List, Literal, Optional, Type
+from typing import TYPE_CHECKING, Any, List, Literal, Optional, Type
 
 from agentscope.agent import ReActAgent
 from agentscope.mcp import HttpStatefulClient, StdIOStatefulClient
@@ -38,7 +40,7 @@ from .tools import (
     create_memory_search_tool,
 )
 from .utils import process_file_and_media_blocks_in_message
-from ..agents.memory import MemoryManager
+from ..agents.memory import ensure_memory_architecture
 from ..config import load_config
 from ..constant import (
     MEMORY_COMPACT_RATIO,
@@ -46,6 +48,9 @@ from ..constant import (
 )
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from ..agents.memory import MemoryManager
 
 # Valid namesake strategies for tool registration
 NamesakeStrategy = Literal["override", "skip", "raise", "rename"]
@@ -103,6 +108,7 @@ class CoPawAgent(ReActAgent):
         self._max_input_length = max_input_length
         self._mcp_clients = mcp_clients or []
         self._namesake_strategy = namesake_strategy
+        ensure_memory_architecture(WORKING_DIR)
 
         # Memory compaction threshold: configurable ratio of max_input_length
         self._memory_compact_threshold = int(
@@ -521,7 +527,7 @@ class CoPawAgent(ReActAgent):
         # Process file and media blocks in messages
         if msg is not None:
             await process_file_and_media_blocks_in_message(msg)
-
+ 
         # Check if message is a system command
         last_msg = msg[-1] if isinstance(msg, list) else msg
         query = (

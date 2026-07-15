@@ -29,6 +29,7 @@ const keyToLabel: Record<string, string> = {
   skills: "nav.skills",
   mcp: "nav.mcp",
   "agent-config": "nav.agentConfig",
+  "memory-eval": "nav.memoryEval",
   workspace: "nav.workspace",
   models: "nav.models",
   environments: "nav.environments",

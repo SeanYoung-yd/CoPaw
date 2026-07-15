@@ -1,0 +1,139 @@
+{
+  "name": "memory-eval-frontend-demo-suite",
+  "documents": [
+    {
+      "id": "memory-index",
+      "path": "MEMORY.md",
+      "content": "# MEMORY\n\n## User\n- [User Profile](memory/user/profile.md) - User prefers pytest for Python projects.\n\n## Project\n- [Project Stack](memory/project/project-stack.md) - CoPaw console frontend stack and evaluation routes.\n- [Deployment](memory/project/deployment.md) - Docker Compose deployment and health check.\n- [Ollama Incident](memory/project/ollama-connection.md) - ECONNREFUSED Ollama connection fix.\n- [Frontend Usage](memory/project/frontend-usage.md) - Memory Evaluation upload workflow."
+    },
+    {
+      "id": "profile",
+      "path": "memory/user/profile.md",
+      "content": "---\nname: User Profile\ndescription: User prefers pytest for Python projects.\ntype: user\n---\n\nUser prefers pytest for Python projects. Long-term decisions should be written to topic files with concise hooks in MEMORY.md."
+    },
+    {
+      "id": "project-stack",
+      "path": "memory/project/project-stack.md",
+      "content": "---\nname: Project Stack\ndescription: CoPaw console frontend stack and evaluation routes.\ntype: project\n---\n\nThe CoPaw console is a React and Vite frontend. The API server exposes evaluation routes under /evals."
+    },
+    {
+      "id": "deployment",
+      "path": "memory/project/deployment.md",
+      "content": "---\nname: Deployment\ndescription: Docker Compose deployment and health check.\ntype: project\n---\n\nDeployment uses Docker Compose. The api service listens on port 8088 and health checks call /health."
+    },
+    {
+      "id": "incident-ollama",
+      "path": "memory/project/ollama-connection.md",
+      "content": "---\nname: Ollama Incident\ndescription: ECONNREFUSED Ollama connection fix.\ntype: project\n---\n\nFixed ECONNREFUSED by changing the Ollama base URL to http://127.0.0.1:11434."
+    },
+    {
+      "id": "frontend-usage",
+      "path": "memory/project/frontend-usage.md",
+      "content": "---\nname: Frontend Usage\ndescription: Memory Evaluation upload workflow.\ntype: project\n---\n\nThe Memory Evaluation page does not automatically read files from tests. Use Load Suite to upload a JSON suite, then click Run."
+    }
+  ],
+  "search_cases": [
+    {
+      "id": "TC-S01-exact-incident",
+      "query": "ECONNREFUSED Ollama",
+      "relevant_ids": ["incident-ollama"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S02-user-preference",
+      "query": "preferred Python test framework",
+      "relevant_ids": ["profile"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S03-deployment-health",
+      "query": "Docker Compose api port health",
+      "relevant_ids": ["deployment"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S04-console-evals",
+      "query": "React Vite frontend evaluation routes",
+      "relevant_ids": ["project-stack"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S05-frontend-upload",
+      "query": "Memory Evaluation Load Suite upload JSON Run",
+      "relevant_ids": ["frontend-usage"],
+      "max_results": 3
+    },
+    {
+      "id": "TC-S06-negative-query",
+      "query": "quantum computing textbook chapter",
+      "relevant_ids": [],
+      "max_results": 3
+    }
+  ],
+  "compaction_cases": [
+    {
+      "id": "TC-C01-preserve-metrics",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Remember that the memory benchmark should report recall@k, MRR, nDCG, retention rate, and latency."
+        },
+        {
+          "role": "assistant",
+          "content": "Recorded: memory benchmark reports recall@k, MRR, nDCG, retention rate, and latency."
+        }
+      ],
+      "expected_terms": ["recall@k", "MRR", "nDCG", "retention", "latency"],
+      "previous_summary": "",
+      "max_summary_tokens": 80
+    },
+    {
+      "id": "TC-C02-keep-frontend-workflow",
+      "messages": [
+        {
+          "role": "user",
+          "content": "The frontend workflow is: open Agent > Memory Eval, click Load Suite, select tests/memory_eval_frontend_suite.json, choose keyword backend, then click Run."
+        },
+        {
+          "role": "assistant",
+          "content": "I will remember the Memory Eval workflow: open the page, load the JSON suite, choose keyword, and run it."
+        }
+      ],
+      "expected_terms": ["Memory Eval", "Load Suite", "memory_eval_frontend_suite.json", "keyword", "Run"],
+      "previous_summary": "",
+      "max_summary_tokens": 90
+    },
+    {
+      "id": "TC-C03-merge-existing-summary",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Update: the API route for memory evaluation is /evals/memory and it accepts backend plus suite in the request body."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted. Memory evaluation uses /evals/memory with backend and suite fields."
+        }
+      ],
+      "expected_terms": ["Memory Evaluation", "/evals/memory", "backend", "suite"],
+      "previous_summary": "Memory Evaluation page loads custom JSON suites from the browser upload control.",
+      "max_summary_tokens": 80
+    },
+    {
+      "id": "TC-C04-budget-control",
+      "messages": [
+        {
+          "role": "user",
+          "content": "The memory documents include profile, project stack, deployment, Ollama incident, and frontend usage notes. The most important regression is that uploaded suites must produce table rows in the frontend."
+        },
+        {
+          "role": "assistant",
+          "content": "Key regression: uploaded suites should produce frontend table rows. Important docs: profile, project stack, deployment, Ollama incident, frontend usage."
+        }
+      ],
+      "expected_terms": ["uploaded suites", "table rows", "frontend"],
+      "previous_summary": "",
+      "max_summary_tokens": 45
+    }
+  ]
+}

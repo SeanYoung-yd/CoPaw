@@ -105,7 +105,7 @@ async def list_memory_files() -> list[MdFileInfo]:
 
 
 @router.get(
-    "/memory/{md_name}",
+    "/memory/{md_name:path}",
     response_model=MdFileContent,
     summary="Read a memory file",
     description="Read a memory markdown file",
@@ -124,7 +124,7 @@ async def read_memory_file(
 
 
 @router.put(
-    "/memory/{md_name}",
+    "/memory/{md_name:path}",
     response_model=dict,
     summary="Write a memory file",
     description="Create or update a memory file",

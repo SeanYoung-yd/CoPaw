@@ -33,6 +33,7 @@
     "skills": "スキル",
     "mcp": "MCP",
     "agentConfig": "設定",
+    "memoryEval": "メモリ評価",
     "settings": "設定",
     "models": "モデル",
     "environments": "環境変数"

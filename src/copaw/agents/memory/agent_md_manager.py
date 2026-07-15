@@ -81,14 +81,16 @@ class AgentMdManager:
                 - created_time: file creation timestamp
                 - modified_time: file modification timestamp
         """
-        md_files = list(self.memory_dir.glob("*.md"))
+        md_files = list(self.memory_dir.rglob("*.md"))
         result = []
         for f in md_files:
             if f.is_file():
                 stat = f.stat()
                 result.append(
                     {
-                        "filename": f.name,
+                        "filename": f.relative_to(
+                            self.memory_dir,
+                        ).as_posix(),
                         "size": stat.st_size,
                         "path": str(f),
                         "created_time": datetime.fromtimestamp(
@@ -107,10 +109,7 @@ class AgentMdManager:
         Returns:
             str: The file content as string
         """
-        # Auto-append .md extension if not present
-        if not md_name.endswith(".md"):
-            md_name += ".md"
-        file_path = self.memory_dir / md_name
+        file_path = self._resolve_memory_md(md_name)
         if not file_path.exists():
             raise FileNotFoundError(f"Memory md file not found: {md_name}")
 
@@ -118,11 +117,23 @@ class AgentMdManager:
 
     def write_memory_md(self, md_name: str, content: str):
         """Write markdown content to a file in the memory directory."""
-        # Auto-append .md extension if not present
+        file_path = self._resolve_memory_md(md_name)
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(content, encoding="utf-8")
+
+    def _resolve_memory_md(self, md_name: str) -> Path:
+        """Resolve a markdown path inside memory_dir and prevent traversal."""
         if not md_name.endswith(".md"):
             md_name += ".md"
-        file_path = self.memory_dir / md_name
-        file_path.write_text(content, encoding="utf-8")
+
+        target = (self.memory_dir / md_name).resolve()
+        try:
+            target.relative_to(self.memory_dir.resolve())
+        except ValueError as exc:
+            raise ValueError(
+                f"Memory md path escapes memory directory: {md_name}",
+            ) from exc
+        return target
 
 
 AGENT_MD_MANAGER = AgentMdManager(working_dir=WORKING_DIR)

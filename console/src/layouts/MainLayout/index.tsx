@@ -14,6 +14,7 @@ import AgentConfigPage from "../../pages/Agent/Config";
 import SkillsPage from "../../pages/Agent/Skills";
 import WorkspacePage from "../../pages/Agent/Workspace";
 import MCPPage from "../../pages/Agent/MCP";
+import MemoryEvalPage from "../../pages/Agent/MemoryEval";
 import ModelsPage from "../../pages/Settings/Models";
 import EnvironmentsPage from "../../pages/Settings/Environments";
 
@@ -32,6 +33,7 @@ const pathToKey: Record<string, string> = {
   "/models": "models",
   "/environments": "environments",
   "/agent-config": "agent-config",
+  "/memory-eval": "memory-eval",
 };
 
 export default function MainLayout() {
@@ -63,6 +65,7 @@ export default function MainLayout() {
               <Route path="/skills" element={<SkillsPage />} />
               <Route path="/mcp" element={<MCPPage />} />
               <Route path="/workspace" element={<WorkspacePage />} />
+              <Route path="/memory-eval" element={<MemoryEvalPage />} />
               <Route path="/models" element={<ModelsPage />} />
               <Route path="/environments" element={<EnvironmentsPage />} />
               <Route path="/agent-config" element={<AgentConfigPage />} />
