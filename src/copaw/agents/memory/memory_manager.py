@@ -11,6 +11,7 @@ Extends ReMeLight to provide memory management capabilities including:
 import logging
 import os
 import platform
+import re
 
 from agentscope.formatter import FormatterBase
 from agentscope.message import Msg
@@ -23,6 +24,173 @@ from copaw.config import load_config
 from .privacy import sanitize_memory_text
 
 logger = logging.getLogger(__name__)
+
+_TOKEN_RE = re.compile(r"[\w/-]+", re.UNICODE)
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?。！？])\s+|\n+")
+_IMPORTANT_MEMORY_TERMS = (
+    "current",
+    "now",
+    "default",
+    "obsolete",
+    "old",
+    "decision",
+    "final",
+    "prefer",
+    "preference",
+    "should",
+    "must",
+    "not",
+    "do not",
+    "private",
+    "token",
+    "persist",
+    "uses",
+    "changed",
+    "next step",
+    "memory",
+    "summary",
+    "folded",
+    "topic",
+    "index",
+)
+
+
+def _count_memory_tokens(text: str) -> int:
+    return len(_TOKEN_RE.findall(text or ""))
+
+
+def _message_text(message: Msg) -> str:
+    content = getattr(message, "content", "")
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for block in content:
+            text = getattr(block, "text", None)
+            if text is not None:
+                parts.append(str(text))
+            elif isinstance(block, dict) and "text" in block:
+                parts.append(str(block["text"]))
+        return "\n".join(parts)
+    return str(content)
+
+
+def _split_memory_sentences(text: str) -> list[str]:
+    clean = sanitize_memory_text(" ".join((text or "").split()))
+    if not clean:
+        return []
+    pieces = _SENTENCE_SPLIT_RE.split(clean)
+    sentences: list[str] = []
+    for piece in pieces:
+        piece = piece.strip(" -\t")
+        if not piece:
+            continue
+        if piece.startswith(("#", "##", "###")):
+            continue
+        sentences.append(piece)
+    return sentences
+
+
+def _memory_sentence_score(sentence: str, source_order: int) -> tuple[int, int, int]:
+    lowered = sentence.lower()
+    score = 0
+    for term in _IMPORTANT_MEMORY_TERMS:
+        if term in lowered:
+            score += 2
+    if any(marker in lowered for marker in ("api key", "password", "secret")):
+        score -= 4
+    if "[redacted_secret]" in lowered:
+        score -= 2
+    if len(sentence) <= 180:
+        score += 1
+    return (score, source_order, -len(sentence))
+
+
+def _rank_memory_candidates(
+    summary: str,
+    messages: list[Msg],
+    previous_summary: str,
+) -> list[str]:
+    raw_candidates: list[tuple[str, int]] = []
+
+    for sentence in _split_memory_sentences(summary):
+        raw_candidates.append((sentence, 0))
+    for sentence in _split_memory_sentences(previous_summary):
+        raw_candidates.append((sentence, 1))
+    for index, message in enumerate(messages):
+        text = _message_text(message)
+        for sentence in _split_memory_sentences(text):
+            raw_candidates.append((sentence, 2 + index))
+
+    seen: set[str] = set()
+    candidates: list[tuple[tuple[int, int, int], str]] = []
+    for sentence, order in raw_candidates:
+        sentence = _normalize_memory_sentence(sentence)
+        key = re.sub(r"\W+", "", sentence.lower())
+        if not sentence or key in seen:
+            continue
+        seen.add(key)
+        candidates.append((_memory_sentence_score(sentence, order), sentence))
+
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return [sentence for _, sentence in candidates]
+
+
+def _normalize_memory_sentence(sentence: str) -> str:
+    sentence = sanitize_memory_text(sentence)
+    sentence = re.sub(r"^(user|assistant|system)\s*:\s*", "", sentence, flags=re.I)
+    sentence = re.sub(r"^\[[^\]]+\]\s*:\s*", "", sentence)
+    sentence = sentence.strip(" -\t")
+    return " ".join(sentence.split())
+
+
+def _fit_compact_summary(
+    *,
+    summary: str,
+    messages: list[Msg],
+    previous_summary: str,
+    max_summary_tokens: int | None,
+) -> str:
+    """Keep memory summaries short while preserving durable facts."""
+    source_text = "\n".join([previous_summary] + [_message_text(m) for m in messages])
+    source_tokens = max(1, _count_memory_tokens(source_text))
+    target_tokens = max_summary_tokens
+    if target_tokens is None:
+        target_tokens = min(240, max(60, int(source_tokens * 0.45)))
+
+    candidates = _rank_memory_candidates(summary, messages, previous_summary)
+    if not candidates:
+        return _truncate_to_tokens(sanitize_memory_text(summary), target_tokens)
+
+    lines: list[str] = []
+    for candidate in candidates:
+        line = f"- {candidate}"
+        trial = "\n".join(lines + [line])
+        if _count_memory_tokens(trial) <= target_tokens:
+            lines.append(line)
+        if len(lines) >= 6:
+            break
+
+    if not lines:
+        return _truncate_to_tokens(candidates[0], target_tokens)
+    return sanitize_memory_text("\n".join(lines))
+
+
+def _truncate_to_tokens(text: str, max_tokens: int) -> str:
+    tokens = _TOKEN_RE.findall(text or "")
+    if len(tokens) <= max_tokens:
+        return sanitize_memory_text(text.strip())
+    # Character-level fallback keeps punctuation around the retained prefix.
+    words = (text or "").split()
+    kept: list[str] = []
+    count = 0
+    for word in words:
+        word_tokens = _count_memory_tokens(word)
+        if count + word_tokens > max_tokens:
+            break
+        kept.append(word)
+        count += word_tokens
+    return sanitize_memory_text(" ".join(kept).strip())
 
 # Try to import reme, log warning if it fails
 try:
@@ -220,6 +388,7 @@ class MemoryManager(ReMeLight):
         self,
         messages: list[Msg],
         previous_summary: str = "",
+        max_summary_tokens: int | None = None,
         **_kwargs,
     ) -> str:
         """Compact a list of messages into a condensed summary.
@@ -249,7 +418,12 @@ class MemoryManager(ReMeLight):
             compact_ratio=memory_compact_ratio,
             previous_summary=previous_summary,
         )
-        return sanitize_memory_text(summary)
+        return _fit_compact_summary(
+            summary=sanitize_memory_text(summary),
+            messages=messages,
+            previous_summary=sanitize_memory_text(previous_summary),
+            max_summary_tokens=max_summary_tokens,
+        )
 
     async def summary_memory(self, messages: list[Msg], **_kwargs) -> str:
         """Generate a comprehensive summary of the given messages.

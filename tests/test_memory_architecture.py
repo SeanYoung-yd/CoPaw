@@ -141,6 +141,47 @@ def test_ensure_memory_architecture_creates_layout(
     assert validate_memory_directory(tmp_path) == []
 
 
+def test_memory_discovery_ignores_active_skills(
+    tmp_path: Path,
+) -> None:
+    skill_dir = tmp_path / "active_skills" / "agent-memory-implementation"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "\n".join(
+            [
+                "---",
+                "name: agent-memory-implementation",
+                "description: Skill metadata is not memory.",
+                "license: local",
+                "---",
+                "",
+                "# Skill",
+            ],
+        ),
+        encoding="utf-8",
+    )
+    topic = tmp_path / "memory" / "project" / "decision.md"
+    topic.parent.mkdir(parents=True)
+    topic.write_text(
+        "\n".join(
+            [
+                "---",
+                "name: Decision",
+                "description: Current project decision.",
+                "type: project",
+                "---",
+                "",
+                "Keep runtime skill files out of memory validation.",
+            ],
+        ),
+        encoding="utf-8",
+    )
+
+    topics = discover_topic_files(tmp_path)
+
+    assert topics == [topic]
+
+
 def test_rebuild_memory_index_from_topics(tmp_path: Path) -> None:
     ensure_memory_architecture(tmp_path)
     topic = tmp_path / "memory" / "feedback" / "style.md"

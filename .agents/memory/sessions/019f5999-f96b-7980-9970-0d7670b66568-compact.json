@@ -1,0 +1,44 @@
+{
+  "task": "Improve CoPaw's memory evaluation and memory architecture using topic files, session-dream, compact summaries, and folded memory.",
+  "current_state": "The referenced session showed that memory_strategy_discrimination_suite.json is valid in the current workspace, while failures usually indicate an old backend schema, stale console build, or selecting the real CoPaw MemoryManager before dependencies are configured.",
+  "key_decisions": [
+    {
+      "decision": "Keep MEMORY.md as a pointer-only index and move durable details to topic files.",
+      "reason": "A giant MEMORY.md is hard to scan and increases stale-fact pollution risk.",
+      "constraint": "MEMORY.md should stay under 200 lines."
+    },
+    {
+      "decision": "Use must_not_return_ids and forbidden_terms in memory benchmark suites.",
+      "reason": "They distinguish ordinary retrieval quality from stale-fact contamination and sensitive-token leakage.",
+      "constraint": "Requires the current backend schema."
+    },
+    {
+      "decision": "Use keyword backend first when debugging the frontend memory evaluation workflow.",
+      "reason": "It is deterministic and does not depend on ReMe, embeddings, or real local memory setup.",
+      "constraint": "Switch to the copaw backend only after memory dependencies are configured."
+    }
+  ],
+  "eliminated_approaches": [
+    {
+      "approach": "Treat memory_strategy_discrimination_suite.json as broken when the app returns must_not_return_ids errors.",
+      "reason_ruled_out": "The current workspace CLI can run the suite; the app error indicates an old running backend."
+    },
+    {
+      "approach": "Rely on flat compaction alone for long-term memory.",
+      "reason_ruled_out": "Flat summaries lose topic routing and durable decision rationale."
+    }
+  ],
+  "open_questions": [
+    "Whether CoPaw should expose session-dream and folded-memory maintenance as CLI commands or keep them as internal helpers first."
+  ],
+  "next_steps": [
+    "Validate the .agents memory tree with the memory architecture helper.",
+    "Run the memory architecture unit tests.",
+    "Use the keyword backend to verify memory strategy suites before debugging real memory backend behavior."
+  ],
+  "relevant_tool_results": {
+    "thread": "Read Codex thread 019f5999-f96b-7980-9970-0d7670b66568; it covered memory eval suite failures, old backend schema errors, frontend stale metric symptoms, and profile-obsolete contamination semantics.",
+    "cli_observation": "The prior session reported current workspace CLI metrics including search_avg_recall_at_k 1.0000, search_avg_exclusion_rate 0.8750, and compaction_avg_safety_rate 0.8333."
+  },
+  "compacted_at_turn": 4
+}

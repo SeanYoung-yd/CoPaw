@@ -522,17 +522,44 @@ def _create_remote_model_instance(
     """
     # Get configuration from llm_cfg or fall back to environment
     if llm_cfg and (llm_cfg.api_key or llm_cfg.base_url):
-        model_name = llm_cfg.model or "qwen3-max"
-        api_key = llm_cfg.api_key
-        base_url = llm_cfg.base_url
+        model_name = (
+            llm_cfg.model
+            or os.getenv("LLM_MODEL_NAME")
+            or os.getenv("OPENAI_MODEL_NAME")
+            or "qwen3-max"
+        )
+        api_key = (
+            llm_cfg.api_key
+            or os.getenv("LLM_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+            or os.getenv("DASHSCOPE_API_KEY", "")
+        )
+        base_url = (
+            llm_cfg.base_url
+            or os.getenv("LLM_BASE_URL")
+            or os.getenv("OPENAI_BASE_URL")
+            or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        )
     else:
         logger.warning(
             "No active LLM configured — "
-            "falling back to DASHSCOPE_API_KEY env var",
+            "falling back to LLM/OPENAI/DASHSCOPE env vars",
         )
-        model_name = "qwen3-max"
-        api_key = os.getenv("DASHSCOPE_API_KEY", "")
-        base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        model_name = (
+            os.getenv("LLM_MODEL_NAME")
+            or os.getenv("OPENAI_MODEL_NAME")
+            or "qwen3-max"
+        )
+        api_key = (
+            os.getenv("LLM_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+            or os.getenv("DASHSCOPE_API_KEY", "")
+        )
+        base_url = (
+            os.getenv("LLM_BASE_URL")
+            or os.getenv("OPENAI_BASE_URL")
+            or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        )
 
     # The Anthropic SDK uses a base_url without the "/v1" suffix (it adds
     # the versioned path internally), unlike OpenAI-compatible providers.

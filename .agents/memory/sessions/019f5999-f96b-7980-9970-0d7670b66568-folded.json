@@ -1,0 +1,77 @@
+{
+  "memory": {
+    "semantic": {
+      "facts": [
+        "CoPaw memory evaluation suites can use must_not_return_ids to detect obsolete-fact contamination.",
+        "CoPaw memory evaluation suites can use forbidden_terms to detect sensitive-token leakage in compaction.",
+        "Keyword baseline is the deterministic backend for debugging suite and frontend workflow issues."
+      ],
+      "decisions": [
+        {
+          "decision": "Use a pointer-only MEMORY.md plus topic files as the default long-term memory shape.",
+          "reason": "It keeps the always-loaded index small while preserving detailed, reviewable context.",
+          "constraint": "Descriptions and pointer hooks must be specific enough for relevance routing."
+        },
+        {
+          "decision": "Use folded memory for old episodes when comparing memory strategies across long sessions.",
+          "reason": "It preserves old decisions and eliminated approaches without injecting raw history.",
+          "constraint": "Only durable facts should enter semantic memory."
+        }
+      ],
+      "eliminated_approaches": [
+        {
+          "approach": "One giant MEMORY.md",
+          "why": "It becomes hard to scan and encourages stale facts to be treated as current facts."
+        },
+        {
+          "approach": "Debugging real CoPaw MemoryManager before keyword baseline passes",
+          "why": "The real backend adds embedding and ReMe configuration variables that obscure suite or UI problems."
+        }
+      ],
+      "patterns": [
+        "When a memory suite fails only in the app, check running backend and built frontend versions before rewriting the suite.",
+        "When old and current memories conflict, mark the old fact obsolete and test that it is not returned as current."
+      ]
+    },
+    "episodes": [
+      {
+        "episode_id": 0,
+        "turn_range": [1, 2],
+        "summary": "The session added and discussed memory evaluation suites that compare compact summary, session-dream, folded memory, and topic files.",
+        "decisions": [
+          {
+            "decision": "The suite should test stale-fact exclusion and privacy safety, not only ordinary recall.",
+            "reason": "Simple retrieval metrics do not reveal whether old facts or sensitive tokens pollute answers."
+          }
+        ],
+        "eliminated": [],
+        "open_questions": [],
+        "tool_results": {}
+      },
+      {
+        "episode_id": 1,
+        "turn_range": [3, 4],
+        "summary": "The session diagnosed why memory_strategy_discrimination_suite.json failed in the running app even though it worked from the current workspace CLI.",
+        "decisions": [
+          {
+            "decision": "Treat must_not_return_ids deserialization errors as an old backend signal.",
+            "reason": "The current source supports that field."
+          }
+        ],
+        "eliminated": [
+          {
+            "approach": "Blame the suite JSON first",
+            "why": "The current workspace CLI could run it successfully."
+          }
+        ],
+        "open_questions": [],
+        "tool_results": {
+          "current_cli": "Prior session reported keyword backend can run tests/memory_strategy_discrimination_suite.json from F:\\CoPaw."
+        }
+      }
+    ],
+    "current_episode_id": 2,
+    "total_turns_seen": 4
+  },
+  "l1_turns": []
+}

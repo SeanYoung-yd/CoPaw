@@ -12,6 +12,7 @@ from copaw.evals.memory_bench import (
     MemoryBenchSuite,
     MemoryDocument,
     SearchCase,
+    _copaw_document_score,
     _score_search_case,
     evaluate_memory_architecture,
     load_builtin_suite,
@@ -214,6 +215,33 @@ def test_architecture_metrics_validate_topic_memory(tmp_path) -> None:
     assert metrics.issue_count == 0
     assert metrics.topic_file_count == 1
     assert metrics.session_artifact_count == 1
+
+
+def test_copaw_document_score_downranks_pointer_index() -> None:
+    query = "frontend console memory evaluation JSON upload /evals/memory"
+    response_text = "MEMORY.md memory-index profile-current project-alpha"
+    index = MemoryDocument(
+        id="memory-index",
+        path="MEMORY.md",
+        content=(
+            "- [Project Beta](memory/project/beta.md) - Frontend console "
+            "stack and memory evaluation route."
+        ),
+    )
+    beta = MemoryDocument(
+        id="project-beta",
+        path="memory/project/beta.md",
+        content=(
+            "Project Beta is a frontend console. Stack: React, Vite, "
+            "Ant Design. The memory evaluation page uploads JSON suites "
+            "and posts to /evals/memory."
+        ),
+    )
+
+    assert (
+        _copaw_document_score(query, beta, response_text)
+        > _copaw_document_score(query, index, response_text)
+    )
 
 
 def test_run_memory_benchmark_reports_architecture_metrics() -> None:

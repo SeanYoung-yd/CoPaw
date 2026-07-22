@@ -18,6 +18,7 @@ from typing import Any
 MEMORY_INDEX_MAX_LINES = 200
 MEMORY_POINTER_MAX_CHARS = 150
 VALID_MEMORY_TYPES = {"user", "feedback", "project", "reference"}
+SESSION_MEMORY_DIRS = {"sessions"}
 
 _FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n?", re.S)
 _POINTER_RE = re.compile(r"^- \[(?P<title>[^\]]+)\]\((?P<path>[^)]+)\) - .+")
@@ -122,14 +123,44 @@ def parse_topic_file(path: str | Path, base_dir: str | Path) -> MemoryTopic:
 
 
 def discover_topic_files(memory_dir: str | Path) -> list[Path]:
-    """Return topic files under memory_dir, excluding MEMORY.md indexes."""
+    """Return memory topic files, excluding indexes and runtime directories."""
     base = Path(memory_dir)
-    files = [
-        path
-        for path in base.rglob("*.md")
-        if path.name.lower() != "memory.md"
-    ]
+    files: list[Path] = []
+
+    # The CoPaw working directory also contains runtime assets such as
+    # active_skills/.  Skill SKILL.md files have frontmatter, but they are not
+    # memory topics and should not be validated as user/project memories.
+    memory_root = base / "memory"
+    if memory_root.exists():
+        files.extend(_iter_memory_topic_files(memory_root))
+        files.extend(_iter_root_legacy_topic_files(base))
+    else:
+        files.extend(_iter_memory_topic_files(base))
+
     return sorted(files, key=lambda item: item.as_posix())
+
+
+def _iter_memory_topic_files(root: Path) -> list[Path]:
+    files: list[Path] = []
+    for path in root.rglob("*.md"):
+        if path.name.lower() == "memory.md":
+            continue
+        try:
+            relative_parts = path.relative_to(root).parts
+        except ValueError:
+            relative_parts = path.parts
+        if relative_parts and relative_parts[0] in SESSION_MEMORY_DIRS:
+            continue
+        files.append(path)
+    return files
+
+
+def _iter_root_legacy_topic_files(root: Path) -> list[Path]:
+    return [
+        path
+        for path in root.glob("*.md")
+        if path.is_file() and path.name.lower() != "memory.md"
+    ]
 
 
 def render_memory_index(topics: list[MemoryTopic]) -> str:
